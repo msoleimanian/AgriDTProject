@@ -2,6 +2,167 @@ import streamlit as st
 import time
 import random
 
+import plotly.graph_objects as go
+
+
+def plot_3d_crops(crop_health, selected_crop):
+    """
+    Visualizes crop health using 3D lines with spheres on top.
+
+    Parameters:
+        crop_health (list): List of dictionaries with crop health data.
+        selected_crop (int): Index of the selected crop (1-based).
+    """
+    # Ensure crop_health contains 10 items (add placeholders if necessary)
+    while len(crop_health) < 10:
+        crop_health.append({
+            "Crop": len(crop_health) + 1,
+            "Health Status": "Not Detected",
+            "Green Pixels": 0,
+            "Total Pixels": 0,
+            "Green Percentage": 0
+        })
+
+    # Initialize 3D plot
+    fig = go.Figure()
+
+    # Define 3D positions for the crops (spread on the X-Y plane for 10 crops)
+    x_positions = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+    y_positions = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+    z_positions = [0] * 10  # Base height of lines (z = 0)
+
+    # Add each crop as a line with a spherical head
+    for i, crop in enumerate(crop_health):
+        # Line base (z = 0) to crop height (z = Green Percentage or default)
+        green_percentage = crop["Green Percentage"]
+        z_height = max(green_percentage / 100, 0.2)  # Minimum height of 0.2 for visibility
+
+        x = [x_positions[i], x_positions[i]]
+        y = [y_positions[i], y_positions[i]]
+        z = [0, z_height]
+
+        # Line and sphere color based on green percentage (gradient)
+        color = f"rgb({255 - int(2.55 * green_percentage)}, {int(2.55 * green_percentage)}, 0)"  # Gradient green to red
+
+        # Highlight selected crop with a yellow sphere
+        sphere_color = 'yellow' if selected_crop == i + 1 else color
+
+        # Larger sphere size
+        sphere_size = 20 + (green_percentage / 5)  # Minimum size 20, scales with percentage
+
+        # Add the line to the plot
+        fig.add_trace(go.Scatter3d(
+            x=x, y=y, z=z,
+            mode='lines',
+            line=dict(color=color, width=5),
+            name=f"Crop {crop['Crop']}",
+            showlegend=False  # Hide legend for individual lines
+        ))
+
+        # Add the sphere at the top of the line
+        fig.add_trace(go.Scatter3d(
+            x=[x[1]], y=[y[1]], z=[z[1]],  # Sphere position at the top of the line
+            mode='markers+text',
+            marker=dict(size=sphere_size, color=sphere_color, opacity=0.9),
+            text=f"Crop {crop['Crop']}<br>{green_percentage}% Healthy<br>Status: {crop['Health Status']}",
+            textposition='top center',
+            name=f"Crop {crop['Crop']}"
+        ))
+
+    # Set layout for the 3D plot
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(title='X-axis', backgroundcolor="rgb(230, 230, 230)"),
+            yaxis=dict(title='Y-axis', backgroundcolor="rgb(230, 230, 230)"),
+            zaxis=dict(title='Health (%)', range=[0, 1], backgroundcolor="rgb(240, 240, 240)"),
+        ),
+        margin=dict(l=0, r=0, b=0, t=40),
+        showlegend=False
+    )
+
+    # Display the 3D plot in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+
+
+def plot_3d_crops2(crop_health, selected_crop, chart_key):
+    """
+    Visualizes crop health using 3D lines with spheres on top.
+
+    Parameters:
+        crop_health (list): List of dictionaries with crop health data.
+        selected_crop (int): Index of the selected crop (1-based).
+        chart_key (str): A unique key for the Streamlit chart element.
+    """
+    # Ensure crop_health contains 10 items (add placeholders if necessary)
+    while len(crop_health) < 10:
+        crop_health.append({
+            "Crop": len(crop_health) + 1,
+            "Health Status": "Not Detected",
+            "Green Pixels": 0,
+            "Total Pixels": 0,
+            "Green Percentage": 0
+        })
+
+    # Initialize 3D plot
+    fig = go.Figure()
+
+    # Define 3D positions for the crops (spread on the X-Y plane for 10 crops)
+    x_positions = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
+    y_positions = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
+    z_positions = [0] * 10  # Base height of lines (z = 0)
+
+    # Add each crop as a line with a spherical head
+    for i, crop in enumerate(crop_health):
+        # Line base (z = 0) to crop height (z = Green Percentage or default)
+        green_percentage = crop["Green Percentage"]
+        z_height = max(green_percentage / 100, 0.2)  # Minimum height of 0.2 for visibility
+
+        x = [x_positions[i], x_positions[i]]
+        y = [y_positions[i], y_positions[i]]
+        z = [0, z_height]
+
+        # Line and sphere color based on green percentage (gradient)
+        color = f"rgb({255 - int(2.55 * green_percentage)}, {int(2.55 * green_percentage)}, 0)"  # Gradient green to red
+
+        # Highlight selected crop with a yellow sphere
+        sphere_color = 'yellow' if selected_crop == i + 1 else color
+
+        # Larger sphere size
+        sphere_size = 20 + (green_percentage / 5)  # Minimum size 20, scales with percentage
+
+        # Add the line to the plot
+        fig.add_trace(go.Scatter3d(
+            x=x, y=y, z=z,
+            mode='lines',
+            line=dict(color=color, width=5),
+            name=f"Crop {crop['Crop']}",
+            showlegend=False  # Hide legend for individual lines
+        ))
+
+        # Add the sphere at the top of the line
+        fig.add_trace(go.Scatter3d(
+            x=[x[1]], y=[y[1]], z=[z[1]],  # Sphere position at the top of the line
+            mode='markers+text',
+            marker=dict(size=sphere_size, color=sphere_color, opacity=0.9),
+            text=f"Crop {crop['Crop']}<br>{green_percentage}% Healthy<br>Status: {crop['Health Status']}",
+            textposition='top center',
+            name=f"Crop {crop['Crop']}"
+        ))
+
+    # Set layout for the 3D plot
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(title='X-axis', backgroundcolor="rgb(230, 230, 230)"),
+            yaxis=dict(title='Y-axis', backgroundcolor="rgb(230, 230, 230)"),
+            zaxis=dict(title='Health (%)', range=[0, 1], backgroundcolor="rgb(240, 240, 240)"),
+        ),
+        margin=dict(l=0, r=0, b=0, t=40),
+        showlegend=False
+    )
+
+    # Display the 3D plot in Streamlit with a unique key
+    st.plotly_chart(fig, use_container_width=True, key=chart_key)
 
 st.set_page_config(page_title="Monitoring Dashboard", layout="wide")
 
@@ -202,7 +363,7 @@ if selected_farm == 'Pak Choy1':
         # Health Circular Progress Bar
         with col1:
             st.markdown(
-                circular_progress_bar(health_status, "Health", "Good", "#4CAF50"),  # Green for Good health
+                circular_progress_bar(health_status, "Current Health", "Good", "#4CAF50"),  # Green for Good health
                 unsafe_allow_html=True,
             )
 
@@ -237,7 +398,7 @@ if selected_farm == 'Pak Choy1':
         # Desired Yield Circular Progress Bar
         with col2:
             st.markdown(
-                circular_progress_bar(desired_yield_percentage, "Desired Yield", "1.4 KG", "#FFA500"),
+                circular_progress_bar(desired_yield_percentage, "Estimated Yield(The target yield is 1.7 KG, 82% of which will be achieved.)", "1.4 KG", "#FFA500"),
                 # Orange for desired yield
                 unsafe_allow_html=True,
             )
@@ -488,15 +649,61 @@ if selected_farm == 'Pak Choy1':
                     st.markdown(html_content, unsafe_allow_html=True)
 
 
+    import streamlit as st
+    import random
+    import pandas as pd
+
+    # --- Inputs and Calculations ---
+    # Define the target yield for comparison
+    target_yield = 950  # grams
+
+    # Generate random estimated yields for 19 areas
+    areas = [f"Area {i + 1}" for i in range(1, 20)]
+    area_yields = [random.uniform(500, 700) for _ in range(19)]
+
+    # Create a DataFrame for area-wise reporting
+    area_data = pd.DataFrame({
+        "Area": areas,
+        "Estimated Yield (grams)": area_yields
+    })
+
+    # Add a column to classify yields as "Good" or "Needs Improvement"
+    area_data["Yield Status"] = area_data["Estimated Yield (grams)"].apply(
+        lambda x: "Good" if x >= (target_yield * 0.8) else "Needs Improvement"
+    )
+
+    # --- Streamlit App Interface ---
+    # Expander for Area Report
+    with st.expander("Click to view Area-wise Reporting for 19 Areas"):
+        st.markdown("<h4 style='text-align: center; color: #4CAF50;'>Area-wise Yield Reporting</h4>",
+                    unsafe_allow_html=True)
+
+        # Display the area report table
+        st.table(area_data)
+
+        # Explanation Section
+        st.markdown("""
+        <div style="border: 2px dashed #4CAF50; border-radius: 10px; padding: 15px; background-color: #fff;">
+            <h4 style="color: #4CAF50; text-align: center;">Explanation</h4>
+            <p><b>Good Yield:</b> Areas where the estimated yield is at least 80% of the target yield (760 grams).</p>
+            <p><b>Needs Improvement:</b> Areas where the estimated yield is less than 80% of the target yield.</p>
+            <p>This classification helps identify areas that need attention to improve yields and ensure consistent performance.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
     # Streamlit app for selecting areas and displaying images and results
-    st.subheader("Crop Health Detection")
+    st.subheader("Crop Health Analyze")
 
     # Directory with images (Ensure this folder contains your images)
     image_folder = "./Images"  # Ensure this folder contains your images
     image_files = [f"{i}.jpeg" for i in range(1, 20)]  # Images from 1.jpeg to 19.jpeg
 
+    colarea, colcrop = st.columns(2)
     # Dropdown for selecting the area
-    area_selected = st.selectbox("Select Area to View Image Processing", [f"Area {i}" for i in range(1, 20)])
+    with colarea:
+        area_selected = st.selectbox("Select Area to View Image Processing", [f"Area {i}" for i in range(1, 20)])
+    with colcrop:
+        selected_crop_info = st.selectbox("Select a Crop to Highlight", range(1, 9))
 
     # Get the corresponding image for the selected area
     area_index = int(area_selected.split()[1]) - 1  # Extract index of the selected area
@@ -514,73 +721,134 @@ if selected_farm == 'Pak Choy1':
 
     # Display Processed Image on the left side
     with img_col1:
+        st.subheader("Current")
+        st.write('')
         st.image(processed_image, caption="Processed Image", use_container_width=True)
 
     # Create a column for the right side summary and crop details
     with img_col2:
-        # Overall Health Status Box
-        import streamlit as st
 
-        # Sample Data (replace with your variables)
-        healthy_crops = 80
-        total_crops = 100
+        st.subheader("Predicted")
 
-        # Calculate the percentage of healthy crops
-        healthy_percentage = (healthy_crops / total_crops) * 100 if total_crops > 0 else 0
+        # Select a crop to highlight
 
-        # Set the desired yield to 250 grams for each area
-        desired_yield = 250  # Fixed yield for each area
+        # Plot the 3D crops
+        plot_3d_crops(crop_health, selected_crop_info)
 
-        # HTML Content
-        html_content = f"""
-        <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 15px; background-color: #f9f9f9;">
-            <h4 style="color: #4CAF50; text-align: center;">Health Status of Area</h4>
-            <p><b>Healthy Crops:</b> {healthy_crops}/{total_crops} ({healthy_percentage:.2f}%)</p>
-            <p><b>Desired Yield for the Area:</b> {desired_yield} grams</p>
-        </div>
-        """
+    # Overall Health Status Box
+    import streamlit as st
 
-        # Display HTML content
-        st.markdown(html_content, unsafe_allow_html=True)
+    # Sample Data (replace with your variables)
+    healthy_crops = 80
+    total_crops = 100
 
-        # Crop Health Status Table (Three columns layout)
-        import streamlit as st
+    # Calculate the percentage of healthy crops
+    healthy_percentage = (healthy_crops / total_crops) * 100 if total_crops > 0 else 0
 
-        # Define recommendations for 19 areas
-        recommendations = [
-            {
-                "Area": f"Area {i + 1}",
-                "Weekly Recommendation": {
-                    "Week 2": f"Solution A: {250 + i * 10} mml + Solution B: {350 - i * 5} mml to adjust pH and EC.",
-                    "Action": "Crop 5 should be cut and replaced." if i % 3 == 0 else "No crops need replacing.",
-                    "Pests": "Pests not detected." if i % 2 == 0 else "Pests detected! Apply pest control measures.",
+    # Set the desired yield to 250 grams for each area
+    desired_yield = 250  # Fixed yield for each area
+
+    import streamlit as st
+    import random
+    import pandas as pd
+
+    # --- Inputs and Calculations ---
+    # Define the target yield and estimated yield for the area
+    target_yield = 950  # grams
+    estimated_yield = 730  # grams
+
+    # Calculate the percentage of the target yield achieved
+    percentage_gain = (estimated_yield / target_yield) * 100
+
+    # Generate mock data for 8 crops (randomized for demonstration purposes)
+    # Crop names
+    crops = [f"Crop {i + 1}" for i in range(8)]
+
+    # Weekly canopy coverage percentages and predicted yields
+    # Week 1 canopy is the observed data, and subsequent weeks are predictions
+    week1_canopy = [random.uniform(60, 80) for _ in range(8)]
+    predicted_week2 = [random.uniform(70, 85) for _ in range(8)]
+    predicted_week3 = [random.uniform(75, 88) for _ in range(8)]
+    predicted_week4 = [random.uniform(80, 90) for _ in range(8)]
+    predicted_yield = [random.uniform(80, 90) for _ in range(8)]  # Predicted yield in grams
+
+    # Create a DataFrame for displaying data in a table
+    crop_data = pd.DataFrame({
+        "Crop": crops,
+        "Week 1 Canopy (%)": week1_canopy,
+        "Predicted Week 2 (%)": predicted_week2,
+        "Predicted Week 3 (%)": predicted_week3,
+        "Predicted Week 4 (%)": predicted_week4,
+        "Predicted Yield (grams)": predicted_yield,
+    })
+
+    # --- HTML Content for Display ---
+    # Combine Health Status and Explanation in one section
+    html_content = f"""
+    <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 20px; background-color: #f9f9f9;">
+        <h4 style="color: #4CAF50; text-align: center;">Health Status and Explanation</h4>
+        <p><b>Target Yield for the Area:</b> {target_yield} grams</p>
+        <p><b>Estimated Yield for the Area:</b> {estimated_yield} grams</p>
+        <p><b>Percentage of Target Achieved:</b> {percentage_gain:.2f}%</p>
+        <hr style="border-top: 1px solid #4CAF50;">
+        <h4 style="color: #4CAF50;">Explanation</h4>
+        <p><b>Target Yield:</b> This represents the ideal yield for the area (in grams).</p>
+        <p><b>Estimated Yield:</b> This is the current predicted yield based on observed data.</p>
+        <p><b>Percentage of Target Achieved:</b> Shows how close the estimated yield is to the target yield.</p>
+        <p><b>Crop Table:</b> Provides weekly canopy data and predicted yields for 8 crops. The values are randomized for this demonstration.</p>
+    </div>
+    """
+
+    # --- Streamlit App Interface ---
+    # Display the combined HTML content in Streamlit
+    st.markdown(html_content, unsafe_allow_html=True)
+
+    # Button to display the table
+    if st.button("Show Crop Canopy & Yield Predictions"):
+        # Add a title for the table
+        st.markdown("<h4 style='text-align: center; color: #4CAF50;'>Crop Canopy and Yield Predictions</h4>",
+                    unsafe_allow_html=True)
+
+        # Display the DataFrame as a table
+        st.table(crop_data)
+
+    # Crop Health Status Table (Three columns layout)
+    import streamlit as st
+
+    # Define recommendations for 19 areas
+    recommendations = [
+        {
+            "Area": f"Area {i + 1}",
+            "Weekly Recommendation": {
+                "Week 2": f"Solution A: {250 + i * 10} mml + Solution B: {350 - i * 5} mml to adjust pH and EC.",
+                "Action": "Crop 5 should be cut and replaced." if i % 3 == 0 else "No crops need replacing.",
+                "Pests": "Pests not detected." if i % 2 == 0 else "Pests detected! Apply pest control measures.",
+            },
+            "Future Recommendations": {
+                "Week 3": {
+                    "Solution A": f"{200 + i * 5} mml",
+                    "Solution B": f"{300 - i * 10} mml",
+                    "Instructions": "Adjust Solution B for stable EC levels.",
                 },
-                "Future Recommendations": {
-                    "Week 3": {
-                        "Solution A": f"{200 + i * 5} mml",
-                        "Solution B": f"{300 - i * 10} mml",
-                        "Instructions": "Adjust Solution B for stable EC levels.",
-                    },
-                    "Week 4": {
-                        "Solution A": f"{150 + i * 2} mml",
-                        "Solution B": f"{250 - i * 7} mml",
-                        "Instructions": "Maintain pH using Solution A only.",
-                    },
+                "Week 4": {
+                    "Solution A": f"{150 + i * 2} mml",
+                    "Solution B": f"{250 - i * 7} mml",
+                    "Instructions": "Maintain pH using Solution A only.",
                 },
-            }
-            for i in range(19)
-        ]
+            },
+        }
+        for i in range(19)
+    ]
 
+    # Dropdown for selecting an area
+    selected_area_name = area_selected
 
-        # Dropdown for selecting an area
-        selected_area_name = area_selected
+    # Find the selected area data
+    selected_area = next(area for area in recommendations if area["Area"] == selected_area_name)
 
-        # Find the selected area data
-        selected_area = next(area for area in recommendations if area["Area"] == selected_area_name)
-
-        # Display selected area recommendations
-        st.markdown(
-            f"""
+    # Display selected area recommendations
+    st.markdown(
+        f"""
             <div class="recommendation-box">
                 <h4 style="color: #4CAF50; text-align: center;">Recommendations {selected_area['Area']}</h4>
                 <p><strong>Current Week:</strong> {selected_area['Weekly Recommendation']['Week 2']}</p>
@@ -588,13 +856,13 @@ if selected_farm == 'Pak Choy1':
                 <p><strong>Pests:</strong> {selected_area['Weekly Recommendation']['Pests']}</p>
             </div>
             """,
-            unsafe_allow_html=True,
-        )
+        unsafe_allow_html=True,
+    )
 
-        # Toggle for More Info
-        if st.button("📖 Show More Info"):
-            st.markdown(
-                f"""
+    # Toggle for More Info
+    if st.button("📖 Show More Info"):
+        st.markdown(
+            f"""
                 <div class="more-info">
                     <h4>Week 3 Recommendations</h4>
                     <p><strong>Solution A:</strong> {selected_area['Future Recommendations']['Week 3']['Solution A']}</p>
@@ -606,52 +874,49 @@ if selected_farm == 'Pak Choy1':
                     <p><strong>Instructions:</strong> {selected_area['Future Recommendations']['Week 4']['Instructions']}</p>
                 </div>
                 """,
-                unsafe_allow_html=True,
-            )
-
-        # CSS for Styling
-        st.markdown(
-            """
-            <style>
-            .recommendation-box {
-                border: 3px solid #4CAF50;
-                padding: 20px;
-                margin: 10px 0;
-                border-radius: 10px;
-                background-color: #f9f9f9;
-                animation: fadeIn 1.5s ease-in-out;
-            }
-            .more-info {
-                margin-top: 10px;
-                padding: 10px;
-                background-color: #e0f7fa;
-                border: 1px solid #4CAF50;
-                border-radius: 5px;
-                font-size: 1em;
-            }
-            button {
-                background-color: #4CAF50;
-                color: white;
-                padding: 10px 15px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 1em;
-            }
-            button:hover {
-                background-color: #45a049;
-            }
-            @keyframes fadeIn {
-                from {opacity: 0;}
-                to {opacity: 1;}
-            }
-            </style>
-            """,
             unsafe_allow_html=True,
         )
 
-    # Display the 2D area visualization with the selected crop highlighted
-    plot_2d_area()
+    # CSS for Styling
+    st.markdown(
+        """
+        <style>
+        .recommendation-box {
+            border: 3px solid #4CAF50;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        .more-info {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e0f7fa;
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 if selected_farm == 'Pak Choy2':
@@ -884,7 +1149,7 @@ if selected_farm == 'Pak Choy2':
         # Desired Yield Circular Progress Bar
         with col2:
             st.markdown(
-                circular_progress_bar(desired_yield_percentage, "Desired Yield", "1.4 KG", "#FFA500"),
+                circular_progress_bar(desired_yield_percentage, "Estimated Yield(The target yield is 1.7 KG, 82% of which will be achieved.)", "1.4 KG", "#FFA500"),
                 # Orange for desired yield
                 unsafe_allow_html=True,
             )
@@ -1057,119 +1322,80 @@ if selected_farm == 'Pak Choy2':
              "Leaves Count": {"Current": 7, "Predicted": 8}}
         ]
 
-        def plot_3d_crops(crop_health, selected_crop):
-            """
-            Visualizes crop health using 3D lines with spheres on top.
-
-            Parameters:
-                crop_health (list): List of dictionaries with crop health data.
-                selected_crop (int): Index of the selected crop (1-based).
-            """
-            # Ensure crop_health contains 10 items (add placeholders if necessary)
-            while len(crop_health) < 10:
-                crop_health.append({
-                    "Crop": len(crop_health) + 1,
-                    "Health Status": "Not Detected",
-                    "Green Pixels": 0,
-                    "Total Pixels": 0,
-                    "Green Percentage": 0
-                })
-
-            # Initialize 3D plot
-            fig = go.Figure()
-
-            # Define 3D positions for the crops (spread on the X-Y plane for 10 crops)
-            x_positions = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]
-            y_positions = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
-            z_positions = [0] * 10  # Base height of lines (z = 0)
-
-            # Add each crop as a line with a spherical head
-            for i, crop in enumerate(crop_health):
-                # Line base (z = 0) to crop height (z = Green Percentage or default)
-                green_percentage = crop["Green Percentage"]
-                z_height = max(green_percentage / 100, 0.2)  # Minimum height of 0.2 for visibility
-
-                x = [x_positions[i], x_positions[i]]
-                y = [y_positions[i], y_positions[i]]
-                z = [0, z_height]
-
-                # Line and sphere color based on green percentage (gradient)
-                color = f"rgb({255 - int(2.55 * green_percentage)}, {int(2.55 * green_percentage)}, 0)"  # Gradient green to red
-
-                # Highlight selected crop with a yellow sphere
-                sphere_color = 'yellow' if selected_crop == i + 1 else color
-
-                # Larger sphere size
-                sphere_size = 20 + (green_percentage / 5)  # Minimum size 20, scales with percentage
-
-                # Add the line to the plot
-                fig.add_trace(go.Scatter3d(
-                    x=x, y=y, z=z,
-                    mode='lines',
-                    line=dict(color=color, width=5),
-                    name=f"Crop {crop['Crop']}",
-                    showlegend=False  # Hide legend for individual lines
-                ))
-
-                # Add the sphere at the top of the line
-                fig.add_trace(go.Scatter3d(
-                    x=[x[1]], y=[y[1]], z=[z[1]],  # Sphere position at the top of the line
-                    mode='markers+text',
-                    marker=dict(size=sphere_size, color=sphere_color, opacity=0.9),
-                    text=f"Crop {crop['Crop']}<br>{green_percentage}% Healthy<br>Status: {crop['Health Status']}",
-                    textposition='top center',
-                    name=f"Crop {crop['Crop']}"
-                ))
-
-            # Set layout for the 3D plot
-            fig.update_layout(
-                scene=dict(
-                    xaxis=dict(title='X-axis', backgroundcolor="rgb(230, 230, 230)"),
-                    yaxis=dict(title='Y-axis', backgroundcolor="rgb(230, 230, 230)"),
-                    zaxis=dict(title='Health (%)', range=[0, 1], backgroundcolor="rgb(240, 240, 240)"),
-                ),
-                margin=dict(l=0, r=0, b=0, t=40),
-                title="3D Crop Health Visualization",
-                showlegend=False
-            )
-
-            # Display the 3D plot in Streamlit
-            st.plotly_chart(fig, use_container_width=True)
-
+        selected_crop_info = st.selectbox("Select a Crop to Highlight", range(1, 11))
 
         col1, col2 = st.columns(2)
         with col1:
             # Select a crop to highlight
-            selected_crop_info = st.selectbox("Select a Crop to Highlight", range(1, 11))
-
+            st.subheader('Current')
             # Plot the 3D crops
             plot_3d_crops(crop_health, selected_crop_info)
 
         with col2:
             # Display crop details for the selected crop
-            if selected_crop_info:
-                selected_crop_data = next((crop for crop in crop_health if crop["Crop"] == selected_crop_info), None)
+            st.subheader('Predicted')
+            # Select a crop to highlight
+            plot_3d_crops2(crop_health, selected_crop_info,'2')
 
-                if selected_crop_data:
-                    # HTML content for displaying crop details
-                    html_content = f"""
-                    <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 15px; background-color: #f9f9f9;">
-                        <h4 style="color: #4CAF50; text-align: center;">Crop Information</h4>
-                        <p><b>Health Status:</b> {selected_crop_data['Health Status']}</p>
-                        <p><b>Green Percentage:</b> {selected_crop_data['Green Percentage']}%</p>
-                        <p><b>Predicted Canopy Size:</b> {selected_crop_data['Predicted Canopy']} m²</p>
-                        <h5 style="color: #4CAF50; margin-top: 10px;">Current and Predicted Values</h5>
-                        <ul>
-                            <li><b>Plant Height:</b> Current = {selected_crop_data['Plant Height']['Current']} m, Predicted = {selected_crop_data['Plant Height']['Predicted']} m</li>
-                            <li><b>Longest Leaf:</b> Current = {selected_crop_data['Longest Leaf']['Current']} m, Predicted = {selected_crop_data['Longest Leaf']['Predicted']} m</li>
-                            <li><b>Yield:</b> Current = {selected_crop_data['Yield']['Current']} units, Predicted = {selected_crop_data['Yield']['Predicted']} units</li>
-                            <li><b>Leaves Count:</b> Current = {selected_crop_data['Leaves Count']['Current']}, Predicted = {selected_crop_data['Leaves Count']['Predicted']}</li>
-                        </ul>
-                    </div>
-                    """
+            # Plot the 3D crops
 
-                    # Render the HTML content in Streamlit
-                    st.markdown(html_content, unsafe_allow_html=True)
+
+        if selected_crop_info:
+            selected_crop_data = next((crop for crop in crop_health if crop["Crop"] == selected_crop_info), None)
+
+            if selected_crop_data:
+                # HTML content for displaying crop details
+                # HTML content for displaying crop details
+                html_content = f"""
+                <div style="border: 2px solid #4CAF50; border-radius: 15px; padding: 20px; background-color: #f9f9f9;">
+                    <h4 style="color: #4CAF50; text-align: center;">Crop Information</h4>
+                    <p><b>Health Status:</b> {selected_crop_data['Health Status']}</p>
+                    <p><b>Green Percentage:</b> {selected_crop_data['Green Percentage']}%</p>
+                    <p><b>Predicted Canopy Size:</b> {selected_crop_data['Predicted Canopy']} m²</p>
+                    <hr style="border-top: 1px solid #4CAF50;">
+                    <h5 style="color: #4CAF50; margin-top: 10px; text-align: center;">Current and Predicted Values</h5>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Attribute</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Current Value</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Predicted Value</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Plant Height</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Plant Height']['Current']} m</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Plant Height']['Predicted']} m</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Longest Leaf</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Longest Leaf']['Current']} m</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Longest Leaf']['Predicted']} m</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Yield</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Yield']['Current']} units</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Yield']['Predicted']} units</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Leaves Count</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Leaves Count']['Current']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Leaves Count']['Predicted']}</td>
+                        </tr>
+                    </table>
+                    <hr style="border-top: 1px solid #4CAF50;">
+                    <h5 style="color: #4CAF50; margin-top: 10px; text-align: center;">Explanation</h5>
+                    <p style="text-align: justify;">
+                        This section provides detailed insights into the health and growth metrics of the selected crop. 
+                        The <b>Health Status</b> and <b>Green Percentage</b> indicate the overall vitality of the crop. 
+                        The <b>Predicted Canopy Size</b> suggests the expected size of the crop canopy in square meters.
+                        The table highlights the current and predicted values for key attributes such as plant height, 
+                        longest leaf size, yield, and leaf count. By comparing these values, you can track the crop's growth trends 
+                        and make informed decisions for better yield optimization.
+                    </p>
+                </div>
+                """
+
+                # Render the HTML content in Streamlit
+                st.markdown(html_content, unsafe_allow_html=True)
         import streamlit as st
         import matplotlib.pyplot as plt
 
@@ -1364,7 +1590,6 @@ if selected_farm == 'Pak Choy2':
                     zaxis=dict(title='Health (%)', range=[0, 1], backgroundcolor="rgb(240, 240, 240)"),
                 ),
                 margin=dict(l=0, r=0, b=0, t=40),
-                title="3D Crop Health Visualization",
                 showlegend=False
             )
 
@@ -1387,19 +1612,52 @@ if selected_farm == 'Pak Choy2':
 
                 if selected_crop_data:
                     # HTML content for displaying crop details
+                    # HTML content for displaying crop details
                     html_content = f"""
-                    <div style="border: 2px solid #4CAF50; border-radius: 10px; padding: 15px; background-color: #f9f9f9;">
+                    <div style="border: 2px solid #4CAF50; border-radius: 15px; padding: 20px; background-color: #f9f9f9;">
                         <h4 style="color: #4CAF50; text-align: center;">Crop Information</h4>
                         <p><b>Health Status:</b> {selected_crop_data['Health Status']}</p>
                         <p><b>Green Percentage:</b> {selected_crop_data['Green Percentage']}%</p>
                         <p><b>Predicted Canopy Size:</b> {selected_crop_data['Predicted Canopy']} m²</p>
-                        <h5 style="color: #4CAF50; margin-top: 10px;">Current and Predicted Values</h5>
-                        <ul>
-                            <li><b>Plant Height:</b> Current = {selected_crop_data['Plant Height']['Current']} m, Predicted = {selected_crop_data['Plant Height']['Predicted']} m</li>
-                            <li><b>Longest Leaf:</b> Current = {selected_crop_data['Longest Leaf']['Current']} m, Predicted = {selected_crop_data['Longest Leaf']['Predicted']} m</li>
-                            <li><b>Yield:</b> Current = {selected_crop_data['Yield']['Current']} units, Predicted = {selected_crop_data['Yield']['Predicted']} units</li>
-                            <li><b>Leaves Count:</b> Current = {selected_crop_data['Leaves Count']['Current']}, Predicted = {selected_crop_data['Leaves Count']['Predicted']}</li>
-                        </ul>
+                        <hr style="border-top: 1px solid #4CAF50;">
+                        <h5 style="color: #4CAF50; margin-top: 10px; text-align: center;">Current and Predicted Values</h5>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr>
+                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Attribute</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Current Value</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #4CAF50; color: white;">Predicted Value</th>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Plant Height</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Plant Height']['Current']} m</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Plant Height']['Predicted']} m</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Longest Leaf</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Longest Leaf']['Current']} m</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Longest Leaf']['Predicted']} m</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Yield</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Yield']['Current']} units</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Yield']['Predicted']} units</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Leaves Count</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Leaves Count']['Current']}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{selected_crop_data['Leaves Count']['Predicted']}</td>
+                            </tr>
+                        </table>
+                        <hr style="border-top: 1px solid #4CAF50;">
+                        <h5 style="color: #4CAF50; margin-top: 10px; text-align: center;">Explanation</h5>
+                        <p style="text-align: justify;">
+                            This section provides detailed insights into the health and growth metrics of the selected crop. 
+                            The <b>Health Status</b> and <b>Green Percentage</b> indicate the overall vitality of the crop. 
+                            The <b>Predicted Canopy Size</b> suggests the expected size of the crop canopy in square meters.
+                            The table highlights the current and predicted values for key attributes such as plant height, 
+                            longest leaf size, yield, and leaf count. By comparing these values, you can track the crop's growth trends 
+                            and make informed decisions for better yield optimization.
+                        </p>
                     </div>
                     """
 
@@ -1412,7 +1670,7 @@ if selected_farm == 'Pak Choy2':
     # Create a dropdown in Streamlit
     selected_area = st.selectbox("Select the Area:", options=areas)
     if selected_area == "Area 1":
-        st.subheader("Crop Health Detection")
+        st.subheader("Crop Health Analyze")
         plot_2d_areaArea1()
         recommendations = [
             {
