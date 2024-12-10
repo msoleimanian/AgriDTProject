@@ -14,18 +14,10 @@ st.sidebar.markdown("""
     <div class="sidebar-text">
         Name: <span style="color: #1F77B4;">Mohsen</span><br>
         Role: <span style="color: #1F77B4;">Farmer</span><br>
-        Edition: <span style="color: #1F77B4;">Standard Edition</span>
+        Edition: <span style="color: #1F77B4;">Professional Edition</span>
     </div>
 """, unsafe_allow_html=True)
 
-# Button to request upgrade
-if st.sidebar.button("Upgrade to Professional Edition"):
-    st.sidebar.markdown("""
-        <div style="background-color: #F5F5F5; padding: 15px; border-radius: 5px; margin-top: 10px;">
-            <strong>Upgrade to Premium Edition for full functionality.</strong><br>
-            Contact <a href="mailto:nurfadhlina@upm.edu.my">nurfadhlina@upm.edu.my</a> for further details.
-        </div>
-    """, unsafe_allow_html=True)
 
 
 html_content = f"""
